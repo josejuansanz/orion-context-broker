@@ -8,18 +8,20 @@ var contextBrokerRequest = function(method, params, body) {
 			'Content-Type': 'application/json'
 		},
 		method: method,
-		url: 'http://fiware.dev:1026' + params,
+		url: 'http://localhost:1026' + params,
+		//url: 'http://fiware.dev:1026' + params,
+		//url: 'http://leandroguillen.com:1026' + params,
 		body: JSON.stringify(body)
 	}, function(error, response, body) {
 		console.log(body);
 	});
-}
+};
 
 var getStatus = function() {
 	contextBrokerRequest('GET', '/version');
-}
+};
 
-var exercise2 = function() {
+var createEntity = function() {
 	var body = {
 	    "id": "Bedroom3",
 	    "type": "Room",
@@ -27,7 +29,7 @@ var exercise2 = function() {
 	        {
 	            "name": "Temperature",
 	            "type": "float",
-	            "value": "22.8"
+	            "value": "35.8"
 	        },
 	        {
 	            "name": "Presence",
@@ -44,12 +46,38 @@ var exercise2 = function() {
 	contextBrokerRequest('POST', '/v1/contextEntities', body);
 };
 
-var exercise3 = function() {
+var getEntity = function() {
 	contextBrokerRequest('GET', '/v1/contextEntities/Bedroom3/attributes/Temperature')
-}
+};
+
+var subscribe = function() {
+    var body = {
+        "entities": [
+            {
+                "type": "Room",
+                "isPattern": false,
+                "id": "Bedroom3"
+            }
+        ],
+        "attributes": [
+            "temperature"
+        ],
+        "reference": "http://192.168.1.104:8080/publish",
+        "duration": "P1M",
+        "notifyConditions": [
+            {
+                "type": "ONCHANGE",
+                "condValues": [
+                    "temperature"
+                ]
+            }
+        ],
+        "throttling": "PT5S"
+    };
+    contextBrokerRequest('POST', '/v1/subscribeContext', body);
+};
 
 //getStatus();
-
-//exercise2();
-
-exercise3();
+createEntity();
+//getEntity();
+//subscribe();
